@@ -1,11 +1,11 @@
 {
-    "id": "elo-obsidian-spotify-plugin",
-    "name": "Elocuency Spotify",
-    "version": "1.0.0",
-    "main": "main.js",
-    "minAppVersion": "1.5.0",
-    "description": "Integration with Spotify for Elocuency.",
-    "author": "Joshua",
-    "authorUrl": "",
-    "isDesktopOnly": false
+  "id": "elo-obsidian-spotify-plugin",
+  "name": "Elocuency Spotify",
+  "version": "1.0.2",
+  "main": "main.js",
+  "minAppVersion": "1.5.0",
+  "description": "Integration with Spotify for Elocuency.",
+  "author": "Joshua",
+  "authorUrl": "",
+  "isDesktopOnly": false
 }
