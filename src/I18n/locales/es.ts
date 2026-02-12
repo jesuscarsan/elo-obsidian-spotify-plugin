@@ -1,0 +1,15 @@
+export default {
+	'plugin.name': 'Plugin de Spotify',
+	'command.importPlaylist': 'Importar Playlist de Spotify',
+	'command.searchArtist': 'Buscar Artista en Spotify',
+	'spotify.openNote': 'Por favor, abre una nota de Markdown (checklist) para importar pistas.',
+	'spotify.noTracks': 'No hay pistas para importar.',
+	'spotify.importedTracks': 'Importadas {{count}} pistas desde Spotify.',
+	'spotify.searchingArtist': 'Buscando artista: {{query}}...',
+	'spotify.noArtistsFound': 'No se encontraron artistas en Spotify.',
+	'spotify.artistUpdated': 'Datos de artista de Spotify actualizados para: {{name}}',
+	'spotify.searchError': 'Error al buscar acciones en Spotify.',
+	'spotify.renamedNote': 'Nota renombrada a: {{name}}',
+	'spotify.renameFailed': 'Error al renombrar nota a {{name}}. El archivo podría ya existir.',
+	'spotify.tokenExpired': 'El token de Spotify ha expirado. Por favor, inicia sesión de nuevo.',
+};

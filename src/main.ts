@@ -4,86 +4,97 @@ import { SettingsView } from './Infrastructure/Obsidian/Views/SettingsView';
 import { SpotifyAdapter } from './Infrastructure/Adapters/SpotifyAdapter';
 import { SettingsAdapter } from './Infrastructure/Adapters/SettingsAdapter';
 import { MusicService } from './Application/Services/MusicService';
-import { showMessage } from './Infrastructure/Obsidian/Utils/Messages';
+import { showMessage, ObsidianTranslationAdapter, TranslationService } from '@elo/obsidian-plugin';
 import { SpotifyAuthModal } from './Infrastructure/Obsidian/Views/Modals/SpotifyAuthModal';
 import { ImportSpotifyPlaylistCommand } from './Infrastructure/Obsidian/Commands/ImportSpotifyPlaylistCommand';
 import { SearchSpotifyArtistCommand } from './Infrastructure/Obsidian/Commands/SearchSpotifyArtistCommand';
+import en from './I18n/locales/en';
+import es from './I18n/locales/es';
 
 export default class EloSpotifyPlugin extends Plugin {
-    settings: SpotifyPluginSettings = DEFAULT_SETTINGS;
-    spotifyAdapter!: SpotifyAdapter;
-    settingsAdapter!: SettingsAdapter;
-    musicService!: MusicService;
+	settings: SpotifyPluginSettings = DEFAULT_SETTINGS;
+	spotifyAdapter!: SpotifyAdapter;
+	settingsAdapter!: SettingsAdapter;
+	musicService!: MusicService;
+	public translationService!: TranslationService;
 
-    async onload() {
-        console.log(`Elocuency Spotify plugin loaded ${this.manifest.version}`);
+	async onload() {
+		console.log(`Elocuency Spotify plugin loaded ${this.manifest.version}`);
 
-        await this.loadSettings();
+		await this.loadSettings();
 
-        // --- Infrastructure (Adapters) ---
-        this.spotifyAdapter = new SpotifyAdapter(
-            this.settings.spotifyClientId,
-            this.settings.spotifyAccessToken,
-            this.settings.spotifyRefreshToken,
-            this.settings.spotifyTokenExpirationTime,
-            async (newToken, newExpiration) => {
-                this.settings.spotifyAccessToken = newToken;
-                this.settings.spotifyTokenExpirationTime = newExpiration;
-                await this.saveSettings();
-            },
-            () => {
-                showMessage('Spotify token expired. Please re-login.');
-                new SpotifyAuthModal(this.app, this.musicService).open();
-            }
-        );
+		// --- I18n ---
+		this.translationService = new ObsidianTranslationAdapter({ en, es });
 
-        this.settingsAdapter = new SettingsAdapter(this);
-        
-        // --- Application (Services) ---
-        this.musicService = new MusicService(this.spotifyAdapter, this.settingsAdapter);
+		// --- Infrastructure (Adapters) ---
+		this.spotifyAdapter = new SpotifyAdapter(
+			this.settings.spotifyClientId,
+			this.settings.spotifyAccessToken,
+			this.settings.spotifyRefreshToken,
+			this.settings.spotifyTokenExpirationTime,
+			async (newToken, newExpiration) => {
+				this.settings.spotifyAccessToken = newToken;
+				this.settings.spotifyTokenExpirationTime = newExpiration;
+				await this.saveSettings();
+			},
+			() => {
+				showMessage('spotify.tokenExpired', undefined, this.translationService);
+				new SpotifyAuthModal(this.app, this.musicService).open();
+			},
+		);
 
-        // --- Commands ---
-        const importPlaylistCommand = new ImportSpotifyPlaylistCommand(
-            this.app,
-            this.spotifyAdapter,
-            this.musicService,
-            () => new SpotifyAuthModal(this.app, this.musicService).open()
-        );
-        this.addCommand({
-            id: importPlaylistCommand.id,
-            name: importPlaylistCommand.name,
-            checkCallback: (checking: boolean) => importPlaylistCommand.checkCallback(checking)
-        });
+		this.settingsAdapter = new SettingsAdapter(this);
 
-        const searchArtistCommand = new SearchSpotifyArtistCommand(
-            this.app, 
-            this.spotifyAdapter,
-            () => new SpotifyAuthModal(this.app, this.musicService).open()
-        );
-        this.addCommand({
-            id: searchArtistCommand.id,
-            name: searchArtistCommand.name,
-            checkCallback: (checking: boolean) => searchArtistCommand.checkCallback(checking)
-        });
+		// --- Application (Services) ---
+		this.musicService = new MusicService(this.spotifyAdapter, this.settingsAdapter);
 
-        // --- Settings ---
-        this.addSettingTab(new SettingsView(this.app, this));
-    }
+		// --- Commands ---
+		const importPlaylistCommand = new ImportSpotifyPlaylistCommand(
+			this.app,
+			this.spotifyAdapter,
+			this.musicService,
+			this.translationService,
+			() => new SpotifyAuthModal(this.app, this.musicService).open(),
+		);
+		this.addCommand({
+			id: importPlaylistCommand.id,
+			name: importPlaylistCommand.name,
+			checkCallback: (checking: boolean) => importPlaylistCommand.checkCallback(checking),
+		});
 
-    onunload() {
-        console.log('Elocuency Spotify plugin unloaded');
-    }
+		const searchArtistCommand = new SearchSpotifyArtistCommand(
+			this.app,
+			this.spotifyAdapter,
+			this.translationService,
+			() => new SpotifyAuthModal(this.app, this.musicService).open(),
+		);
+		this.addCommand({
+			id: searchArtistCommand.id,
+			name: searchArtistCommand.name,
+			checkCallback: (checking: boolean) => searchArtistCommand.checkCallback(checking),
+		});
 
-    async loadSettings() {
-        const data = await this.loadData();
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
-    }
+		// --- Settings ---
+		this.addSettingTab(new SettingsView(this.app, this));
+	}
 
-    async saveSettings() {
-        await this.saveData(this.settings);
-        // Update adapter if it needs it (e.g. clientId change)
-        if (this.spotifyAdapter) {
-            this.spotifyAdapter.updateCredentials(this.settings.spotifyClientId, this.settings.spotifyAccessToken);
-        }
-    }
+	onunload() {
+		console.log('Elocuency Spotify plugin unloaded');
+	}
+
+	async loadSettings() {
+		const data = await this.loadData();
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+		// Update adapter if it needs it (e.g. clientId change)
+		if (this.spotifyAdapter) {
+			this.spotifyAdapter.updateCredentials(
+				this.settings.spotifyClientId,
+				this.settings.spotifyAccessToken,
+			);
+		}
+	}
 }

@@ -21,7 +21,7 @@
   "author": "Joshua",
   "license": "MIT",
   "devDependencies": {
-    "@elo/obsidian-plugin": "file:../../libs/obsidian-plugin",
+    "@elo/obsidian-plugin": "workspace:*",
     "@jest/globals": "^30.2.0",
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.9",
@@ -41,7 +41,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@elo/core": "file:../../libs/core-ts",
-    "@elo/obsidian-plugin": "file:../../libs/obsidian-plugin"
+    "@elo/core": "workspace:*",
+    "@elo/obsidian-plugin": "workspace:*"
   }
 }
