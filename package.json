@@ -1,6 +1,6 @@
 {
   "name": "elo-obsidian-spotify-plugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Obsidian plugin for Spotify integration.",
   "main": "dist/main.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "format": "prettier --write .",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "preinstall": "npx only-allow pnpm"
   },
   "keywords": [
     "obsidian",
@@ -19,7 +20,7 @@
     "music"
   ],
   "author": "Joshua",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@elo/obsidian-plugin": "workspace:*",
     "@jest/globals": "^30.2.0",
